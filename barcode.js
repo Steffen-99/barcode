@@ -68,13 +68,17 @@ var barcode = function() {
 		elements.canvasg = document.querySelector(config.canvasg);
 		elements.ctxg = elements.canvasg.getContext('2d');
 
-		if (navigator.getUserMedia) {
-			navigator.getUserMedia({audio: false, video: true}, function(stream) {
-				elements.video.srcObject = stream;
-			}, function(XYZ) {
-				console.error(XYZ);
-			});
-		}
+		var constraints = { audio: false, video: { width: 1280, height: 720 } };
+
+		navigator.mediaDevices.getUserMedia(constraints)
+			.then(function(mediaStream) {
+				elements.video.srcObject = mediaStream;
+				video.onloadedmetadata = function(e) {
+					elements.video.play();
+				};
+			})
+			.catch(function(err) { console.log(err.name + ": " + err.message); }); // always check for errors at the end.
+
 
 		elements.video.addEventListener('canplay', function(e) {
 
